@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".HabitEditActivity"></activity>
-        <activity android:name=".HabitsList">
+        <activity android:name=".HabitsListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
