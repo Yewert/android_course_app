@@ -25,8 +25,8 @@ fun Habit.applyToBundle(bundle: Bundle) {
 
 fun Intent.extractHabit(): Habit {
     return Habit(
-        getStringExtra("name") ?: "name",
-        getStringExtra("description") ?: "description",
+        getStringExtra("name") ?: "",
+        getStringExtra("description") ?: "",
         getIntExtra("priority", 1),
         getStringExtra("type") ?: "Food",
         getIntExtra("repetitions", 1),

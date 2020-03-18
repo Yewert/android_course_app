@@ -20,7 +20,23 @@ class HabitsListActivity : AppCompatActivity(), ISetActivityForResult {
 
         viewManager = LinearLayoutManager(this)
 
-        habits = mutableListOf(Habit("hi", "not much", 7, "", 0, 0))
+        habits = mutableListOf(
+            Habit("Sample", "Sample", 7, "Activity", 2, 3),
+            Habit("Sample", "Sample", 7, "Activity", 2, 3),
+            Habit("Sample", "Sample", 7, "Activity", 2, 3),
+            Habit(
+                "LongSample",
+                "Sample\nSample\nSample\nSample\nSampleSample\nSample\nSample\nSample\nSample\n",
+                5,
+                "Task",
+                2,
+                4
+            ),
+            Habit("Sample", "Sample", 7, "Activity", 2, 3),
+            Habit("Sample", "Sample", 7, "Activity", 2, 3),
+            Habit("Sample", "Sample", 7, "Activity", 2, 3),
+            Habit("Sample", "Sample", 7, "Activity", 2, 3)
+        )
         viewAdapter = Adapter(habits, ItemClickHandler(this, this))
 
         recyclerView = findViewById<RecyclerView>(R.id.habits_list_view).apply {
