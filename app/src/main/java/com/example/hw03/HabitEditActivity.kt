@@ -30,6 +30,8 @@ class HabitEditActivity : AppCompatActivity() {
         habitDescription.setText(habitToEdit.description)
         habitPriority.progress = habitToEdit.priority
         habitType.check(typeToId(habitToEdit.type) ?: R.id.habit_type_selector_1)
+        habitRepetitions.setText(habitToEdit.repetitions.toString())
+        habitPeriod.setText(habitToEdit.period.toString())
 
         findViewById<Button>(R.id.habit_edit_save).setOnClickListener {
             val datax = Intent(this, HabitsListActivity::class.java).apply {
