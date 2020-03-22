@@ -10,7 +10,11 @@ data class Habit(
     val type: String,
     val repetitions: Int,
     val period: Int
-)
+) {
+    companion object {
+        val default = Habit("", "", 1, "food", 1, 1)
+    }
+}
 
 fun Habit.applyToBundle(bundle: Bundle) {
     bundle.apply {

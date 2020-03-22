@@ -47,23 +47,25 @@ class HabitsListActivity : AppCompatActivity(), ISetActivityForResult {
 
         findViewById<FloatingActionButton>(R.id.habits_list_add).setOnClickListener {
             val intent = Intent(this, HabitEditActivity::class.java)
-            startActivityForResult(intent, 0)
+            startActivityForResult(intent, 1)
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == 1) {
-            val habit = data!!.extractHabit()
-            val index = data.getIntExtra("index", -1)
-            if (index == -1) {
-                habits.add(habit)
-                viewAdapter.notifyItemInserted(habits.size - 1)
-            } else {
-                habits[index] = habit
-                viewAdapter.notifyItemChanged(index)
+        if (requestCode == 1) {
+            if (resultCode == 1) {
+                val habit = data?.extractHabit() ?: Habit.default
+                val index = data?.getIntExtra("index", -1) ?: -1
+                if (index == -1) {
+                    habits.add(habit)
+                    viewAdapter.notifyItemInserted(habits.size - 1)
+                } else {
+                    habits[index] = habit
+                    viewAdapter.notifyItemChanged(index)
+                }
             }
+            super.onActivityResult(requestCode, resultCode, data)
         }
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun set(intent: Intent) {

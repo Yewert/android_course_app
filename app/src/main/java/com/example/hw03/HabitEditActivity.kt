@@ -34,7 +34,8 @@ class HabitEditActivity : AppCompatActivity() {
         habitPeriod.setText(habitToEdit.period.toString())
 
         findViewById<Button>(R.id.habit_edit_save).setOnClickListener {
-            val datax = Intent(this, HabitsListActivity::class.java).apply {
+            if (isValid()) {
+                val data = Intent(this, HabitsListActivity::class.java).apply {
                 val bundle = Bundle().apply { putInt("index", habitIndex) }
                 val habit = Habit(
                     habitName.text.toString(),
@@ -47,8 +48,9 @@ class HabitEditActivity : AppCompatActivity() {
                 habit.applyToBundle(bundle)
                 putExtras(bundle)
             }
-            setResult(1, datax)
+                setResult(1, data)
             finish()
+        }
         }
     }
 
@@ -59,5 +61,19 @@ class HabitEditActivity : AppCompatActivity() {
             "Task" -> R.id.habit_type_selector_3
             else -> null
         }
+    }
+
+    private fun isValid(): Boolean {
+        var valid = true
+        if (habitName.text.isBlank()) {
+            habitName.error = "invalid"
+            valid = false
+        }
+        if (habitDescription.text.isBlank()) {
+            habitDescription.error = "invalid"
+            valid = false
+        }
+
+        return valid
     }
 }
