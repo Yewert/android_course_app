@@ -36,8 +36,8 @@ class HabitEditFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (savedInstanceState != null)
-            return
+
+        (requireActivity() as IDrawerLocker).setDrawerEnabled(false)
 
         habitName = view.findViewById(R.id.habit_name_edit)
         habitDescription = view.findViewById(R.id.habit_description_edit)
@@ -94,6 +94,12 @@ class HabitEditFragment : Fragment() {
         }
 
         return valid
+    }
+
+    public override fun onDestroy() {
+        super.onDestroy()
+
+        (requireActivity() as IDrawerLocker).setDrawerEnabled(true)
     }
 
     companion object {
