@@ -14,12 +14,12 @@ class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val priority: TextView = itemView.findViewById(R.id.habit_priority)
     private lateinit var habit: Habit
     private var index = -1
-    private lateinit var clickHandler: ItemClickHandler
+    private lateinit var clickHandler: IEditHabitHandler
 
     fun bind(
         habit: Habit,
         index: Int,
-        clickHandler: ItemClickHandler
+        clickHandler: IEditHabitHandler
     ) {
         this.habit = habit
         this.index = index
@@ -30,7 +30,7 @@ class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         repetitionsAndPeriod.text = "${habit.repetitions} times every ${habit.period} days"
         description.text = habit.description
 
-        itemView.setOnClickListener { clickHandler.handle(habit, index) }
+        itemView.setOnClickListener { clickHandler.handleEdit(habit) }
     }
 
 

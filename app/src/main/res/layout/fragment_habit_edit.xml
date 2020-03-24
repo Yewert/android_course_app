@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".HabitEditActivity">
+    android:layout_height="match_parent">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -114,20 +112,15 @@
                         android:id="@+id/habit_type_selector_1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Food" />
+                        android:text="Good" />
 
                     <RadioButton
                         android:id="@+id/habit_type_selector_2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="0dp"
-                        android:text="Activity" />
+                        android:text="Bad" />
 
-                    <RadioButton
-                        android:id="@+id/habit_type_selector_3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Task" />
                 </RadioGroup>
             </LinearLayout>
 
