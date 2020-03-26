@@ -5,7 +5,6 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
@@ -26,11 +25,9 @@ class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsList
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        model.addOrUpdate(Habit("one", "descr", 1, "Good", 1, 1))
-        model.addOrUpdate(Habit("one", "descr", 1, "Bad", 1, 1))
         setContentView(R.layout.main_activity)
 
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+//        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayShowTitleEnabled(false)
 
@@ -48,11 +45,15 @@ class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsList
         drawerToggle.syncState()
         nav_drawer.setNavigationItemSelectedListener(this)
 
+        if (savedInstanceState != null) return
+        model.addOrUpdate(Habit("one", "descr", 1, "Good", 1, 1))
+        model.addOrUpdate(Habit("one", "descr", 1, "Bad", 1, 1))
+
         setHabitsView()
     }
 
     private fun setHabitsView() {
-        supportFragmentManager.popBackStackImmediate()
+//        supportFragmentManager.popBackStackImmediate()
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, HabitsViewFragment()).commit()
     }

@@ -1,6 +1,5 @@
 package com.example.hw03
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -73,9 +72,5 @@ class HabitsListFragment() : Fragment(), IHabitsListObserver {
             habits.removeAt(index)
             viewAdapter.notifyItemRemoved(index)
         }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
     }
 }

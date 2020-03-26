@@ -20,9 +20,6 @@ class HabitsViewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        if (savedInstanceState != null)
-//            return
-
         val habitsListPagerAdapter = HabitsListPagerAdapter(requireActivity())
         val pager = view.findViewById<ViewPager2>(R.id.pager)
         pager.adapter = habitsListPagerAdapter
