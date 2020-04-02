@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.fragment_habits_list.*
 import java.util.*
 
 class HabitsListFragment() : Fragment(), IHabitsListObserver {
@@ -38,14 +38,12 @@ class HabitsListFragment() : Fragment(), IHabitsListObserver {
 
 
         (requireActivity() as IHabitsListObservable).attachObserver(this)
-//        if (savedInstanceState != null)
-//            return
 
         habits = model.getHabits(type).toMutableList()
 
         viewAdapter = HabitsRecyclerViewAdapter(habits, requireActivity() as IEditHabitHandler)
 
-        view.findViewById<RecyclerView>(R.id.habits_list_view).apply {
+        habits_list_view.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = viewAdapter
         }
@@ -54,6 +52,10 @@ class HabitsListFragment() : Fragment(), IHabitsListObserver {
     override var type: String = "Good"
 
     override fun onHabitChanged(id: UUID) {
+        if (model.isFilterEnabled) {
+            reload()
+            return
+        }
         val index =
             habits.withIndex().find { indexedValue -> indexedValue.value.id == id }?.index ?: -1
         if (index == -1) {
@@ -66,11 +68,21 @@ class HabitsListFragment() : Fragment(), IHabitsListObserver {
     }
 
     override fun onHabitRemoved(id: UUID) {
+        if (model.isFilterEnabled) {
+            reload()
+            return
+        }
         val index =
             habits.withIndex().find { indexedValue -> indexedValue.value.id == id }?.index ?: -1
         if (index != -1) {
             habits.removeAt(index)
             viewAdapter.notifyItemRemoved(index)
         }
+    }
+
+    override fun reload() {
+        habits.clear()
+        habits.addAll(model.getHabits(type))
+        viewAdapter.notifyDataSetChanged()
     }
 }

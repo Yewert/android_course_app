@@ -16,7 +16,7 @@ interface IHabitsListObservable {
 }
 
 class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsListObservable,
-    IDrawerLocker, NavigationView.OnNavigationItemSelectedListener {
+    IDrawerLocker, IFilterHandler, NavigationView.OnNavigationItemSelectedListener {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerLayout: DrawerLayout
     private val model: HabitsViewModel by viewModels()
@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsList
 
         setContentView(R.layout.main_activity)
 
-//        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayShowTitleEnabled(false)
 
@@ -46,14 +45,26 @@ class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsList
         nav_drawer.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState != null) return
-        model.addOrUpdate(Habit("one", "descr", 1, "Good", 1, 1))
-        model.addOrUpdate(Habit("one", "descr", 1, "Bad", 1, 1))
+
+        HabitsStorage.addOrUpdate(Habit("one", "descr", 1, "Good", 1, 1))
+        HabitsStorage.addOrUpdate(Habit("one", "descr", 1, "Bad", 1, 1))
+        model.initWithStorage(HabitsStorage)
+        HabitsStorage.registerObserver(model)
 
         setHabitsView()
     }
 
+    override fun setFilter(filter: Filter) {
+        model.setFilter(filter)
+        typedObservers.forEach { it.value.reload() }
+    }
+
+    override fun unsetFilter() {
+        model.setFilter(null)
+        typedObservers.forEach { it.value.reload() }
+    }
+
     private fun setHabitsView() {
-//        supportFragmentManager.popBackStackImmediate()
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, HabitsViewFragment()).commit()
     }
@@ -82,7 +93,7 @@ class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsList
     }
 
     override fun handleSave(habit: Habit, originalType: String) {
-        model.addOrUpdate(habit)
+        HabitsStorage.addOrUpdate(habit)
         if (originalType != habit.type)
             typedObservers[originalType]!!.onHabitRemoved(habit.id)
         typedObservers[habit.type]?.onHabitChanged(habit.id)
@@ -123,4 +134,9 @@ interface IHabitInteractionsHandler : IEditHabitHandler, INewHabitHandler, ISave
 
 interface IDrawerLocker {
     fun setDrawerEnabled(enabled: Boolean)
+}
+
+interface IFilterHandler {
+    fun setFilter(filter: Filter)
+    fun unsetFilter()
 }

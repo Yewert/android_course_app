@@ -7,4 +7,5 @@ interface IHabitsListObserver {
 
     fun onHabitChanged(id: UUID)
     fun onHabitRemoved(id: UUID)
+    fun reload()
 }
