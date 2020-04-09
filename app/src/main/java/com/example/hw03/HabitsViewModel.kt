@@ -28,15 +28,17 @@ class HabitsViewModel(application: Application) : AndroidViewModel(application) 
         return MediatorLiveData<List<Habit>>().apply {
             addSource(habitsDao?.habits!!) {
                 allHabits = it.toMutableList()
-                habitsByType[habitListObserver.type]?.value = allHabits.filter { habit ->
-                    habit.type == habitListObserver.type && filter.value?.invoke(habit) ?: true
-                }
+                filterByTypeAndCustomFilter(habitListObserver)
             }
             addSource(filter) {
-                habitsByType[habitListObserver.type]?.value = allHabits.filter { habit ->
-                    habit.type == habitListObserver.type && filter.value?.invoke(habit) ?: true
-                }
+                filterByTypeAndCustomFilter(habitListObserver)
             }
+        }
+    }
+
+    private fun filterByTypeAndCustomFilter(habitListObserver: IHabitsListObserver) {
+        habitsByType[habitListObserver.type]?.value = allHabits.filter { habit ->
+            habit.type == habitListObserver.type && filter.value?.invoke(habit) ?: true
         }
     }
 }
