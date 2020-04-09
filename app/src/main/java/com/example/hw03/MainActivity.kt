@@ -9,6 +9,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.main_activity.*
+import java.util.*
 
 
 interface IHabitsListObservable {
@@ -87,16 +88,15 @@ class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsList
 
     override fun handleNew() {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, HabitEditFragment.newInstance(Habit.default))
+            .replace(R.id.fragment_container, HabitEditFragment.newInstance(Habit.empty))
             .addToBackStack(null)
             .commit()
     }
 
-    override fun handleSave(habit: Habit, originalType: String) {
-        HabitsStorage.addOrUpdate(habit)
-        if (originalType != habit.type)
-            typedObservers[originalType]!!.onHabitRemoved(habit.id)
-        typedObservers[habit.type]?.onHabitChanged(habit.id)
+    override fun handleSave(id: UUID, currentType: String, originalType: String) {
+        if (originalType != currentType)
+            typedObservers[originalType]!!.onHabitRemoved(id)
+        typedObservers[currentType]?.onHabitChanged(id)
         supportFragmentManager.popBackStack()
     }
 
@@ -127,7 +127,7 @@ interface INewHabitHandler {
 }
 
 interface ISaveHabitHandler {
-    fun handleSave(habit: Habit, originalType: String)
+    fun handleSave(id: UUID, currentType: String, originalType: String)
 }
 
 interface IHabitInteractionsHandler : IEditHabitHandler, INewHabitHandler, ISaveHabitHandler

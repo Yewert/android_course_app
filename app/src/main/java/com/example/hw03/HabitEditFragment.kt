@@ -5,32 +5,45 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.RadioButton
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import java.util.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.hw03.databinding.FragmentHabitEditBinding
+import kotlinx.android.synthetic.main.fragment_habit_edit.*
 
 class HabitEditFragment : Fragment() {
-    private lateinit var habitId: UUID
-    private lateinit var habitOriginalType: String
-    private lateinit var habitName: EditText
-    private lateinit var habitDescription: EditText
-    private lateinit var habitRepetitions: EditText
-    private lateinit var habitPeriod: EditText
-    private lateinit var habitType: RadioGroup
-    private lateinit var habitPriority: SeekBar
 
     private lateinit var saveHandler: ISaveHabitHandler
+
+    private lateinit var model: HabitEditViewModel
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         saveHandler = requireActivity() as ISaveHabitHandler
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        model = ViewModelProvider(this, object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return HabitEditViewModel().initWith(arguments!!.getParcelable("habit")!!) as T
+            }
+        }).get(HabitEditViewModel::class.java)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_habit_edit, container, false)
+        val binding = DataBindingUtil.inflate<FragmentHabitEditBinding>(
+            inflater,
+            R.layout.fragment_habit_edit, container, false
+        )
+        binding.lifecycleOwner = this
+        binding.viewModel = model
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,37 +52,18 @@ class HabitEditFragment : Fragment() {
 
         (requireActivity() as IDrawerLocker).setDrawerEnabled(false)
 
-        habitName = view.findViewById(R.id.habit_name_edit)
-        habitDescription = view.findViewById(R.id.habit_description_edit)
-        habitRepetitions = view.findViewById(R.id.habit_repetitions_edit)
-        habitPeriod = view.findViewById(R.id.habit_period_edit)
-        habitType = view.findViewById(R.id.habit_type_edit)
-        habitPriority = view.findViewById(R.id.habit_priority_edit)
 
-        val habitToEdit = arguments?.getParcelable("habit") ?: Habit.default
-        habitId = habitToEdit.id
-        habitOriginalType = habitToEdit.type
-        habitName.setText(habitToEdit.name)
-        habitDescription.setText(habitToEdit.description)
-        habitPriority.progress = habitToEdit.priority
-        habitType.check(typeToId(habitToEdit.type) ?: R.id.habit_type_selector_1)
-        habitRepetitions.setText(habitToEdit.repetitions.toString())
-        habitPeriod.setText(habitToEdit.period.toString())
+        habit_type_edit.check(typeToId(model.type) ?: R.id.habit_type_selector_1)
 
-
-        view.findViewById<Button>(R.id.habit_edit_save).setOnClickListener {
+        habit_edit_save.setOnClickListener {
             if (isValid()) {
-                val habit = Habit(
-                    habitName.text.toString(),
-                    habitDescription.text.toString(),
-                    habitPriority.progress,
-                    view.findViewById<RadioButton>(habitType.checkedRadioButtonId).text.toString(),
-                    habitRepetitions.text.toString().toIntOrNull() ?: 0,
-                    habitPeriod.text.toString().toIntOrNull() ?: 0,
-                    habitId
-                )
 
-                saveHandler.handleSave(habit, habitOriginalType)
+                val type = view.findViewById<RadioButton>(habit_type_edit.checkedRadioButtonId)
+                    .text.toString()
+                model.type = type
+
+                model.save()
+                saveHandler.handleSave(model.id, model.type, model.initialType)
             }
         }
     }
@@ -84,12 +78,12 @@ class HabitEditFragment : Fragment() {
 
     private fun isValid(): Boolean {
         var valid = true
-        if (habitName.text.isBlank()) {
-            habitName.error = "invalid"
+        if (model.name.isBlank()) {
+            habit_name_edit.error = "invalid"
             valid = false
         }
-        if (habitDescription.text.isBlank()) {
-            habitDescription.error = "invalid"
+        if (model.description.isBlank()) {
+            habit_description_edit.error = "invalid"
             valid = false
         }
 

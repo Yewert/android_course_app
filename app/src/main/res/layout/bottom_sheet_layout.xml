@@ -26,7 +26,7 @@
         android:id="@+id/filter_set"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Searcg" />
+        android:text="Search" />
 
     <Button
         android:id="@+id/filter_unset"

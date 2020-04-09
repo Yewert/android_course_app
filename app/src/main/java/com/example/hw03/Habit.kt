@@ -15,7 +15,7 @@ data class Habit(
     val id: UUID = UUID.randomUUID()
 ) : Parcelable {
     companion object {
-        val default: Habit
-            get() = Habit("a", "b", 1, "Good", 1, 1, UUID.randomUUID())
+        val empty: Habit
+            get() = Habit("name", "description", 1, "Good", 1, 1, UUID.randomUUID())
     }
 }
