@@ -9,14 +9,8 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.main_activity.*
-import java.util.*
 
-
-interface IHabitsListObservable {
-    fun attachObserver(observer: IHabitsListObserver)
-}
-
-class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsListObservable,
+class MainActivity : AppCompatActivity(), IHabitInteractionsHandler,
     IDrawerLocker, IFilterHandler, NavigationView.OnNavigationItemSelectedListener {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerLayout: DrawerLayout
@@ -47,22 +41,15 @@ class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsList
 
         if (savedInstanceState != null) return
 
-        HabitsStorage.addOrUpdate(Habit("one", "descr", 1, "Good", 1, 1))
-        HabitsStorage.addOrUpdate(Habit("one", "descr", 1, "Bad", 1, 1))
-        model.initWithStorage(HabitsStorage)
-        HabitsStorage.registerObserver(model)
-
         setHabitsView()
     }
 
     override fun setFilter(filter: Filter) {
         model.setFilter(filter)
-        typedObservers.forEach { it.value.reload() }
     }
 
     override fun unsetFilter() {
         model.setFilter(null)
-        typedObservers.forEach { it.value.reload() }
     }
 
     private fun setHabitsView() {
@@ -73,10 +60,6 @@ class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsList
     private fun setInfoView() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, AppInfoFragment()).commit()
-    }
-
-    override fun attachObserver(observer: IHabitsListObserver) {
-        typedObservers[observer.type] = observer
     }
 
     override fun handleEdit(habit: Habit) {
@@ -93,10 +76,7 @@ class MainActivity : AppCompatActivity(), IHabitInteractionsHandler, IHabitsList
             .commit()
     }
 
-    override fun handleSave(id: UUID, currentType: String, originalType: String) {
-        if (originalType != currentType)
-            typedObservers[originalType]!!.onHabitRemoved(id)
-        typedObservers[currentType]?.onHabitChanged(id)
+    override fun handleSave() {
         supportFragmentManager.popBackStack()
     }
 
@@ -127,7 +107,7 @@ interface INewHabitHandler {
 }
 
 interface ISaveHabitHandler {
-    fun handleSave(id: UUID, currentType: String, originalType: String)
+    fun handleSave()
 }
 
 interface IHabitInteractionsHandler : IEditHabitHandler, INewHabitHandler, ISaveHabitHandler

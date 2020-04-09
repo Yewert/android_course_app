@@ -8,11 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_habits_list.*
-import java.util.*
 
 class HabitsListFragment() : Fragment(), IHabitsListObserver {
     private val model: HabitsViewModel by activityViewModels()
-    private lateinit var habits: MutableList<Habit>
+    private val habits: MutableList<Habit> = mutableListOf()
     private lateinit var viewAdapter: HabitsRecyclerViewAdapter
 
     override fun onCreateView(
@@ -36,10 +35,10 @@ class HabitsListFragment() : Fragment(), IHabitsListObserver {
 
         type = arguments?.getString("type") ?: "Good"
 
-
-        (requireActivity() as IHabitsListObservable).attachObserver(this)
-
-        habits = model.getHabits(type).toMutableList()
+        model.registerObserver(this).observe(viewLifecycleOwner, androidx.lifecycle.Observer {})
+        model.habitsByType[this.type]?.observe(
+            viewLifecycleOwner,
+            androidx.lifecycle.Observer { reload(it) })
 
         viewAdapter = HabitsRecyclerViewAdapter(habits, requireActivity() as IEditHabitHandler)
 
@@ -51,38 +50,9 @@ class HabitsListFragment() : Fragment(), IHabitsListObserver {
 
     override var type: String = "Good"
 
-    override fun onHabitChanged(id: UUID) {
-        if (model.isFilterEnabled) {
-            reload()
-            return
-        }
-        val index =
-            habits.withIndex().find { indexedValue -> indexedValue.value.id == id }?.index ?: -1
-        if (index == -1) {
-            habits.add(model.findById(id)!!)
-            viewAdapter.notifyItemInserted(habits.size - 1)
-        } else {
-            habits[index] = model.findById(id)!!
-            viewAdapter.notifyItemChanged(index)
-        }
-    }
-
-    override fun onHabitRemoved(id: UUID) {
-        if (model.isFilterEnabled) {
-            reload()
-            return
-        }
-        val index =
-            habits.withIndex().find { indexedValue -> indexedValue.value.id == id }?.index ?: -1
-        if (index != -1) {
-            habits.removeAt(index)
-            viewAdapter.notifyItemRemoved(index)
-        }
-    }
-
-    override fun reload() {
+    private fun reload(list: List<Habit>) {
         habits.clear()
-        habits.addAll(model.getHabits(type))
+        habits.addAll(list)
         viewAdapter.notifyDataSetChanged()
     }
 }

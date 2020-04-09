@@ -1,41 +1,42 @@
 package com.example.hw03
 
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
-import java.util.*
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 
 typealias Filter = (Habit) -> Boolean
 
-class HabitsViewModel : ViewModel(), Observer<IHabitsStorageRead> {
-    private lateinit var habits: List<Habit>
-    private lateinit var storage: IHabitsStorageRead
-
-    fun initWithStorage(storage: IHabitsStorageRead) {
-        this.storage = storage
-        onChanged(storage)
-    }
-
-    fun getHabits(habitType: String): List<Habit> {
-        return habits.filter { it.type == habitType }
-    }
+class HabitsViewModel(application: Application) : AndroidViewModel(application) {
+    val habitsByType: MutableMap<String, MutableLiveData<List<Habit>>> = mutableMapOf(
+        "Bad" to MutableLiveData(listOf()),
+        "Good" to MutableLiveData(listOf())
+    )
+    private var allHabits = listOf<Habit>()
+    private val db = HabitsDatabase.getInstance(getApplication<Application>().applicationContext)
+    private val habitsDao = db?.habitsDao()
 
 
-    fun findById(id: UUID): Habit? {
-        return getIndexedHabit(id)?.value
-    }
-
-    private fun getIndexedHabit(id: UUID) = habits.withIndex().find { it.value.id == id }
-
-    private var filter: Filter? = null
-    val isFilterEnabled: Boolean
-        get() = filter != null
+    private var filter: MutableLiveData<Filter?> = MutableLiveData(null)
 
     fun setFilter(filter: Filter?) {
-        this.filter = filter
-        onChanged(storage)
+        this.filter.value = filter
     }
 
-    override fun onChanged(t: IHabitsStorageRead) {
-        habits = t.getHabits().filter { filter?.invoke(it) ?: true }.toList()
+    fun registerObserver(habitListObserver: IHabitsListObserver): LiveData<List<Habit>> {
+        return MediatorLiveData<List<Habit>>().apply {
+            addSource(habitsDao?.habits!!) {
+                allHabits = it.toMutableList()
+                habitsByType[habitListObserver.type]?.value = allHabits.filter { habit ->
+                    habit.type == habitListObserver.type && filter.value?.invoke(habit) ?: true
+                }
+            }
+            addSource(filter) {
+                habitsByType[habitListObserver.type]?.value = allHabits.filter { habit ->
+                    habit.type == habitListObserver.type && filter.value?.invoke(habit) ?: true
+                }
+            }
+        }
     }
 }

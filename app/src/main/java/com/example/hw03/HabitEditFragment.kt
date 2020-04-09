@@ -28,7 +28,11 @@ class HabitEditFragment : Fragment() {
         super.onCreate(savedInstanceState)
         model = ViewModelProvider(this, object : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                return HabitEditViewModel().initWith(arguments!!.getParcelable("habit")!!) as T
+                return HabitEditViewModel(requireActivity().application).initWith(
+                    arguments!!.getParcelable(
+                        "habit"
+                    )!!
+                ) as T
             }
         }).get(HabitEditViewModel::class.java)
     }
@@ -63,7 +67,7 @@ class HabitEditFragment : Fragment() {
                 model.type = type
 
                 model.save()
-                saveHandler.handleSave(model.id, model.type, model.initialType)
+                saveHandler.handleSave()
             }
         }
     }

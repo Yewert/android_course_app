@@ -1,11 +1,14 @@
 package com.example.hw03
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import java.util.*
 
 class HabitEditViewModel(
-
-) : ViewModel() {
+    application: Application
+) : AndroidViewModel(application) {
+    private val db = HabitsDatabase.getInstance(getApplication<Application>().applicationContext)
+    private val habitsDao = db?.habitsDao()
     var name: String = ""
     var description: String = ""
     var priority: Int = 1
@@ -38,7 +41,7 @@ class HabitEditViewModel(
     }
 
     fun save() {
-        HabitsStorage.addOrUpdate(
+        habitsDao?.upsert(
             Habit(
                 name,
                 description,
