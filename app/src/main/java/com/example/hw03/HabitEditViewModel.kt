@@ -2,6 +2,10 @@ package com.example.hw03
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class HabitEditViewModel(
@@ -41,16 +45,20 @@ class HabitEditViewModel(
     }
 
     fun save() {
-        habitsDao?.upsert(
-            Habit(
-                name,
-                description,
-                priority,
-                type,
-                _repetitions,
-                _period,
-                id
-            )
-        )
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                habitsDao?.upsert(
+                    Habit(
+                        name,
+                        description,
+                        priority,
+                        type,
+                        _repetitions,
+                        _period,
+                        id
+                    )
+                )
+            }
+        }
     }
 }
